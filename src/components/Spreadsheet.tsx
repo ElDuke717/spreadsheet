@@ -1,5 +1,5 @@
 // Importing the useState hook from React for state management.
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Importing the Cell component from the local file.
 import Cell from './Cell';
@@ -21,6 +21,21 @@ export default function Spreadsheet() {
     ['', '', '', '', '', '', '', '', '', ''],
   ]);
 
+  function updateValue(x: number, y: number, value: string) {
+    const _data = structuredClone(data);
+    _data[y][x] = value;
+    setData(_data);
+
+    if (window && window.localStorage) {
+      window.localStorage.setItem('spreadsheet', JSON.stringify(_data))
+    }
+  }
+
+  useEffect(() => {
+    const data = window.localStorage.getItem('spreadsheet')
+    if (data) setData(JSON.parse(data))
+  }, [])
+
   // Rendering the Spreadsheet component.
   /* possible grid-cols-* values are grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-5 grid-cols-6 grid-cols-7 grid-cols-8 grid-cols-9 grid-cols-10 */
   return (
@@ -31,7 +46,13 @@ export default function Spreadsheet() {
         return row.map((cell, x) => {
           // Rendering the Cell component for each cell in the row.
           // Assigning a unique key using the row and column indices to help React identify which items have changed.
-          return <Cell key={y + '-' + x} />
+          return <Cell 
+            key={y + '-' + x}
+            value = {cell} 
+            x = {x}
+            y={y}
+            updateValue = {updateValue}
+          />
         })
       })}
     </div>
