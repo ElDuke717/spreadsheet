@@ -42,10 +42,27 @@ export default function Spreadsheet() {
     if (data) setData(JSON.parse(data))
   }, []) // Empty dependency array ensures this effect runs only once after the component mounts.
 
+  // Function to convert index to column letter (e.g., 0 -> A, 1 -> B, etc.)
+  const toColumnName = (num) => {
+    let s = '', t;
+  
+    while (num > 0) {
+      t = (num - 1) % 26;
+      s = String.fromCharCode(65 + t) + s;
+      num = ((num - t) / 26) | 0;
+    }
+    return s || 'A';
+  }
+  
+
   // Rendering the Spreadsheet component.
   return (
     // Using a grid layout with a number of columns equal to the length of the first row in 'data'.
     <div className={`grid grid-cols-${data[0].length}`}>
+      {/* Render column headers */}
+{data[0].map((_, index) => (
+  <div key={index} className="header-cell">{toColumnName(index + 1)}</div>
+))}
       {/* Mapping over each row in the 'data' array. 'row' is a single row, and 'y' is its index. */}
       {data.map((row, y) => (
         // For each row, mapping over each cell.
